@@ -4,6 +4,7 @@ import com.dividedby0.crackedzombies.config.ConfigManager;
 import com.dividedby0.crackedzombies.config.JSON5ConfigManager;
 import java.util.Objects;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -186,7 +187,7 @@ public class CrackedZombieHandler {
             BlockPos spawnPos = new BlockPos(x, y, z);
             BlockState below = level.getBlockState(spawnPos.below());
 
-            if (!below.isSolid()) {
+            if (!below.isFaceSturdy(level, spawnPos.below(), Direction.UP)) {
                 continue;
             }
 
@@ -218,7 +219,7 @@ public class CrackedZombieHandler {
             int z = playerPos.getZ() + (int) Math.round(Math.sin(angle) * radius);
             int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
             BlockPos pos = new BlockPos(x, y, z);
-            if (level.getBlockState(pos.below()).isSolid()) {
+            if (level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) {
                 return pos;
             }
         }

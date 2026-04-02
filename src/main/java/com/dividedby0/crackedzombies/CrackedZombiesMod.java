@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 public class CrackedZombiesMod {
     public static final String MODID = "crackedzombies";
 
+    @SuppressWarnings("removal")
     public CrackedZombiesMod() {
         ConfigManager.getInstance();
 
