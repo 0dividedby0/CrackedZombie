@@ -1,50 +1,40 @@
 package com.dividedby0.crackedzombies;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import com.dividedby0.crackedzombies.config.JSON5ConfigManager;
+
+import java.util.Locale;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleConsumer;
+import java.util.function.IntConsumer;
 
 public class SimpleConfigScreen extends Screen {
     private final Screen previousScreen;
     private final JSON5ConfigManager configManager;
 
-    // Spawn fields
-    private EditBox minSpawnInput;
-    private EditBox maxSpawnInput;
-    private EditBox spawnProbInput;
-
-    // Behavior fields
-    private EditBox poisonDurationInput;
-    private EditBox poisonAmpInput;
-    private EditBox moveSpeedInput;
-    private EditBox aggroRangeInput;
-    private EditBox followRangeInput;
+    private int minSpawn;
+    private int maxSpawn;
+    private int zombieSpawnProb;
+    private int minSpawnDistance;
+    private int maxSpawnDistance;
+    private int poisonDuration;
+    private int poisonAmplifier;
+    private double moveSpeed;
+    private double aggroRange;
+    private double followRange;
 
     // Boolean fields
+    private boolean spawnInCreative;
     private boolean zombieSpawns;
     private boolean daySpawning;
     private boolean doorBusting;
     private boolean sickness;
-    private boolean spawnCreepers;
-    private boolean spawnEnderman;
-    private boolean spawnSkeletons;
-    private boolean spawnSlime;
-    private boolean spawnSpiders;
-    private boolean spawnWitches;
 
-    private Button zombieSpawnsButton;
-    private Button daySpawningButton;
-    private Button doorBustingButton;
-    private Button sicknessButton;
-    private Button spawnCreepersButton;
-    private Button spawnEndermanButton;
-    private Button spawnSkeletonsButton;
-    private Button spawnSlimeButton;
-    private Button spawnSpidersButton;
-    private Button spawnWitchesButton;
 
     public SimpleConfigScreen(Screen previousScreen, JSON5ConfigManager configManager) {
         super(Component.literal("Cracked Zombies Configuration"));
@@ -54,63 +44,65 @@ public class SimpleConfigScreen extends Screen {
 
     @Override
     protected void init() {
+        this.clearWidgets();
+
+        minSpawn = i("minSpawn", 2);
+        maxSpawn = i("maxSpawn", 10);
+        zombieSpawnProb = i("zombieSpawnProb", 15);
+        minSpawnDistance = i("minSpawnDistance", 12);
+        maxSpawnDistance = i("maxSpawnDistance", 24);
+        moveSpeed = d("moveSpeed", 0.35);
+        aggroRange = d("aggroRange", 40.0);
+        followRange = d("followRange", 64.0);
+        poisonDuration = i("poisonDuration", 100);
+        poisonAmplifier = i("poisonAmplifier", 0);
+
+        spawnInCreative = b("spawnInCreative", false);
+        zombieSpawns = b("zombieSpawns", false);
+        daySpawning = b("daySpawning", true);
+        doorBusting = b("doorBusting", false);
+        sickness = b("sickness", true);
+
+
         int cx = this.width / 2;
-        int leftLabelX = cx - 235;
-        int leftInputX = cx - 70;
-        int rightLabelX = cx + 20;
-        int rightButtonX = cx + 140;
+        int leftX = cx - 155;
+        int rightX = cx + 5;
         int y = 30;
         int rowH = 24;
 
-        minSpawnInput = addInput(leftInputX, y, "Min Spawn"); minSpawnInput.setValue(s("minSpawn", 2));
-        zombieSpawns = b("zombieSpawns", false);
-        zombieSpawnsButton = addToggleButton(rightButtonX, y, () -> zombieSpawns = !zombieSpawns);
+        addIntSlider(leftX, y, "Min Zombies", 1, 64, minSpawn, v -> minSpawn = v);
+        addToggleButton(rightX, y, "Vanilla Zombies", () -> zombieSpawns, () -> zombieSpawns = !zombieSpawns);
         y += rowH;
 
-        maxSpawnInput = addInput(leftInputX, y, "Max Spawn"); maxSpawnInput.setValue(s("maxSpawn", 10));
-        daySpawning = b("daySpawning", true);
-        daySpawningButton = addToggleButton(rightButtonX, y, () -> daySpawning = !daySpawning);
+        addIntSlider(leftX, y, "Max Zombies", 1, 128, maxSpawn, v -> maxSpawn = v);
+        addToggleButton(rightX, y, "Day Spawning", () -> daySpawning, () -> daySpawning = !daySpawning);
         y += rowH;
 
-        spawnProbInput = addInput(leftInputX, y, "Spawn Weight"); spawnProbInput.setValue(s("zombieSpawnProb", 15));
-        doorBusting = b("doorBusting", false);
-        doorBustingButton = addToggleButton(rightButtonX, y, () -> doorBusting = !doorBusting);
+        addIntSlider(leftX, y, "Spawn Weight", 1, 100, zombieSpawnProb, v -> zombieSpawnProb = v);
+        addToggleButton(rightX, y, "Door Busting", () -> doorBusting, () -> doorBusting = !doorBusting);
         y += rowH;
 
-        moveSpeedInput = addInput(leftInputX, y, "Move Speed"); moveSpeedInput.setValue(d("moveSpeed", 0.35));
-        sickness = b("sickness", true);
-        sicknessButton = addToggleButton(rightButtonX, y, () -> sickness = !sickness);
+        addIntSlider(leftX, y, "Min Spawn Distance", 4, 64, minSpawnDistance, v -> minSpawnDistance = v);
+        addToggleButton(rightX, y, "Spawn In Creative", () -> spawnInCreative, () -> spawnInCreative = !spawnInCreative);
         y += rowH;
 
-        aggroRangeInput = addInput(leftInputX, y, "Aggro Range"); aggroRangeInput.setValue(d("aggroRange", 40.0));
-        spawnCreepers = b("spawnCreepers", true);
-        spawnCreepersButton = addToggleButton(rightButtonX, y, () -> spawnCreepers = !spawnCreepers);
+        addIntSlider(leftX, y, "Max Spawn Distance", 8, 128, maxSpawnDistance, v -> maxSpawnDistance = v);
+        addToggleButton(rightX, y, "Poison On Hit", () -> sickness, () -> sickness = !sickness);
         y += rowH;
 
-        followRangeInput = addInput(leftInputX, y, "Follow Range"); followRangeInput.setValue(d("followRange", 64.0));
-        spawnEnderman = b("spawnEnderman", true);
-        spawnEndermanButton = addToggleButton(rightButtonX, y, () -> spawnEnderman = !spawnEnderman);
+        addDoubleSlider(leftX, y, "Move Speed", 0.1, 1.5, moveSpeed, 2, v -> moveSpeed = v);
         y += rowH;
 
-        poisonDurationInput = addInput(leftInputX, y, "Poison Duration (ticks)"); poisonDurationInput.setValue(s("poisonDuration", 100));
-        spawnSkeletons = b("spawnSkeletons", true);
-        spawnSkeletonsButton = addToggleButton(rightButtonX, y, () -> spawnSkeletons = !spawnSkeletons);
+        addDoubleSlider(leftX, y, "Aggro Range", 8.0, 128.0, aggroRange, 1, v -> aggroRange = v);
         y += rowH;
 
-        poisonAmpInput = addInput(leftInputX, y, "Poison Amplifier"); poisonAmpInput.setValue(s("poisonAmplifier", 0));
-        spawnSlime = b("spawnSlime", true);
-        spawnSlimeButton = addToggleButton(rightButtonX, y, () -> spawnSlime = !spawnSlime);
+        addDoubleSlider(leftX, y, "Follow Range", 16.0, 256.0, followRange, 1, v -> followRange = v);
         y += rowH;
 
-        // Extra row for remaining spawn toggles
-        y += 4;
-        spawnSpiders = b("spawnSpiders", true);
-        spawnSpidersButton = addToggleButton(rightButtonX, y, () -> spawnSpiders = !spawnSpiders);
+        addIntSlider(leftX, y, "Poison Duration", 20, 600, poisonDuration, v -> poisonDuration = v);
         y += rowH;
-        spawnWitches = b("spawnWitches", true);
-        spawnWitchesButton = addToggleButton(rightButtonX, y, () -> spawnWitches = !spawnWitches);
 
-        refreshToggleLabels();
+        addIntSlider(leftX, y, "Poison Amplifier", 0, 4, poisonAmplifier, v -> poisonAmplifier = v);
 
         int by = this.height - 30;
         this.addRenderableWidget(Button.builder(Component.literal("Save"), btn -> save())
@@ -119,112 +111,69 @@ public class SimpleConfigScreen extends Screen {
                 .bounds(cx + 10, by, 100, 20).build());
     }
 
-    private EditBox addInput(int x, int y, String hint) {
-        EditBox box = new EditBox(this.font, x, y, 140, 18, Component.literal(hint));
-        this.addRenderableWidget(box);
-        return box;
+    private IntSlider addIntSlider(int x, int y, String title, int min, int max, int value, IntConsumer onChange) {
+        return this.addRenderableWidget(new IntSlider(x, y, 150, 20, title, min, max, value, onChange));
     }
 
-    private Button addToggleButton(int x, int y, Runnable onToggle) {
-        return this.addRenderableWidget(Button.builder(Component.literal(""), btn -> {
+    private DoubleSlider addDoubleSlider(int x, int y, String title, double min, double max, double value,
+                                         int decimals, DoubleConsumer onChange) {
+        return this.addRenderableWidget(new DoubleSlider(x, y, 150, 20, title, min, max, value, decimals, onChange));
+    }
+
+    private Button addToggleButton(int x, int y, String title, BooleanSupplier state, Runnable onToggle) {
+        return this.addRenderableWidget(Button.builder(toggleLabel(title, state.getAsBoolean()), btn -> {
             onToggle.run();
-            refreshToggleLabels();
-        }).bounds(x, y, 130, 18).build());
+            btn.setMessage(toggleLabel(title, state.getAsBoolean()));
+        }).bounds(x, y, 150, 20).build());
     }
 
-    private String s(String key, int def) { return String.valueOf(configManager.getInt(key, def)); }
-    private String d(String key, double def) { return String.valueOf(configManager.getDouble(key, def)); }
+    private int i(String key, int def) { return configManager.getInt(key, def); }
+    private double d(String key, double def) { return configManager.getDouble(key, def); }
     private boolean b(String key, boolean def) { return configManager.getBoolean(key, def); }
 
-    private void refreshToggleLabels() {
-        zombieSpawnsButton.setMessage(boolLabel(zombieSpawns));
-        daySpawningButton.setMessage(boolLabel(daySpawning));
-        doorBustingButton.setMessage(boolLabel(doorBusting));
-        sicknessButton.setMessage(boolLabel(sickness));
-        spawnCreepersButton.setMessage(boolLabel(spawnCreepers));
-        spawnEndermanButton.setMessage(boolLabel(spawnEnderman));
-        spawnSkeletonsButton.setMessage(boolLabel(spawnSkeletons));
-        spawnSlimeButton.setMessage(boolLabel(spawnSlime));
-        spawnSpidersButton.setMessage(boolLabel(spawnSpiders));
-        spawnWitchesButton.setMessage(boolLabel(spawnWitches));
-    }
-
-    private Component boolLabel(boolean value) {
-        return Component.literal(value ? "Enabled" : "Disabled");
+    private Component toggleLabel(String title, boolean value) {
+        return Component.literal(title + ": " + (value ? "ON" : "OFF"));
     }
 
     @Override
     public void render(GuiGraphics g, int mx, int my, float pt) {
         this.renderBackground(g);
         g.drawCenteredString(this.font, this.title, this.width / 2, 10, 0xFFFFFF);
-        int leftLabelX = this.width / 2 - 235;
-        int rightLabelX = this.width / 2 + 20;
-        int y = 34;
-        int h = 24;
-        String[] leftLabels = {
-            "Min Zombies per spawn [1-64]:",
-            "Max Zombies per spawn [1-128]:",
-            "Spawn weight [1-100]:",
-            "Move speed [0.1-1.5] (vanilla=0.23):",
-            "Aggro range blocks [8-128]:",
-            "Follow range blocks [16-256]:",
-            "Poison duration ticks [20-600]:",
-            "Poison amplifier [0-4] (0=Poison I):"
-        };
-        String[] rightLabels = {
-            "Allow vanilla zombies:",
-            "Allow daytime spawning:",
-            "Door busting:",
-            "Poison on hit:",
-            "Allow creepers:",
-            "Allow enderman:",
-            "Allow skeletons:",
-            "Allow slimes:",
-            "Allow spiders:",
-            "Allow witches:"
-        };
-
-        for (int i = 0; i < leftLabels.length; i++) {
-            g.drawString(this.font, leftLabels[i], leftLabelX, y, 0xAAAAAA);
-            g.drawString(this.font, rightLabels[i], rightLabelX, y, 0xAAAAAA);
-            y += h;
-        }
-
-        y += 4;
-        g.drawString(this.font, rightLabels[8], rightLabelX, y, 0xAAAAAA);
-        y += h;
-        g.drawString(this.font, rightLabels[9], rightLabelX, y, 0xAAAAAA);
 
         super.render(g, mx, my, pt);
     }
 
     private void save() {
-        try { configManager.setInt("minSpawn", clamp(parseInt(minSpawnInput), 1, 64)); } catch (NumberFormatException ignored) {}
-        try { configManager.setInt("maxSpawn", clamp(parseInt(maxSpawnInput), 1, 128)); } catch (NumberFormatException ignored) {}
-        try { configManager.setInt("zombieSpawnProb", clamp(parseInt(spawnProbInput), 1, 100)); } catch (NumberFormatException ignored) {}
-        try { configManager.setDouble("moveSpeed", clampD(parseDouble(moveSpeedInput), 0.1, 1.5)); } catch (NumberFormatException ignored) {}
-        try { configManager.setDouble("aggroRange", clampD(parseDouble(aggroRangeInput), 8.0, 128.0)); } catch (NumberFormatException ignored) {}
-        try { configManager.setDouble("followRange", clampD(parseDouble(followRangeInput), 16.0, 256.0)); } catch (NumberFormatException ignored) {}
-        try { configManager.setInt("poisonDuration", clamp(parseInt(poisonDurationInput), 20, 600)); } catch (NumberFormatException ignored) {}
-        try { configManager.setInt("poisonAmplifier", clamp(parseInt(poisonAmpInput), 0, 4)); } catch (NumberFormatException ignored) {}
+        configManager.setInt("minSpawn", clamp(minSpawn, 1, 64));
+        configManager.setInt("maxSpawn", clamp(maxSpawn, 1, 128));
+        configManager.setInt("zombieSpawnProb", clamp(zombieSpawnProb, 1, 100));
+        int clampedMinDistance = clamp(minSpawnDistance, 4, 64);
+        int clampedMaxDistance = clamp(maxSpawnDistance, 8, 128);
+        if (clampedMaxDistance <= clampedMinDistance) {
+            clampedMaxDistance = Math.min(128, clampedMinDistance + 1);
+            if (clampedMaxDistance <= clampedMinDistance) {
+                clampedMinDistance = Math.max(4, clampedMaxDistance - 1);
+            }
+        }
+        configManager.setInt("minSpawnDistance", clampedMinDistance);
+        configManager.setInt("maxSpawnDistance", clampedMaxDistance);
+        configManager.setDouble("moveSpeed", clampD(moveSpeed, 0.1, 1.5));
+        configManager.setDouble("aggroRange", clampD(aggroRange, 8.0, 128.0));
+        configManager.setDouble("followRange", clampD(followRange, 16.0, 256.0));
+        configManager.setInt("poisonDuration", clamp(poisonDuration, 20, 600));
+        configManager.setInt("poisonAmplifier", clamp(poisonAmplifier, 0, 4));
 
+        configManager.setBoolean("spawnInCreative", spawnInCreative);
         configManager.setBoolean("zombieSpawns", zombieSpawns);
         configManager.setBoolean("daySpawning", daySpawning);
         configManager.setBoolean("doorBusting", doorBusting);
         configManager.setBoolean("sickness", sickness);
-        configManager.setBoolean("spawnCreepers", spawnCreepers);
-        configManager.setBoolean("spawnEnderman", spawnEnderman);
-        configManager.setBoolean("spawnSkeletons", spawnSkeletons);
-        configManager.setBoolean("spawnSlime", spawnSlime);
-        configManager.setBoolean("spawnSpiders", spawnSpiders);
-        configManager.setBoolean("spawnWitches", spawnWitches);
+
 
         configManager.saveConfig();
         this.onClose();
     }
 
-    private int parseInt(EditBox box) { return Integer.parseInt(box.getValue().trim()); }
-    private double parseDouble(EditBox box) { return Double.parseDouble(box.getValue().trim()); }
     private int clamp(int v, int min, int max) { return Math.max(min, Math.min(max, v)); }
     private double clampD(double v, double min, double max) { return Math.max(min, Math.min(max, v)); }
 
@@ -233,4 +182,82 @@ public class SimpleConfigScreen extends Screen {
 
     @Override
     public boolean isPauseScreen() { return false; }
+
+    private static class IntSlider extends AbstractSliderButton {
+        private final String title;
+        private final int min;
+        private final int max;
+        private final IntConsumer onChange;
+
+        IntSlider(int x, int y, int width, int height, String title, int min, int max, int value, IntConsumer onChange) {
+            super(x, y, width, height, Component.empty(), toSlider(value, min, max));
+            this.title = title;
+            this.min = min;
+            this.max = max;
+            this.onChange = onChange;
+            this.updateMessage();
+        }
+
+        @Override
+        protected void updateMessage() {
+            this.setMessage(Component.literal(this.title + ": " + this.toValue()));
+        }
+
+        @Override
+        protected void applyValue() {
+            this.onChange.accept(this.toValue());
+        }
+
+        private int toValue() {
+            return Mth.clamp((int) Math.round(this.min + (this.max - this.min) * this.value), this.min, this.max);
+        }
+
+        private static double toSlider(int value, int min, int max) {
+            if (max <= min) {
+                return 0.0;
+            }
+            return Mth.clamp((value - (double) min) / (double) (max - min), 0.0, 1.0);
+        }
+    }
+
+    private static class DoubleSlider extends AbstractSliderButton {
+        private final String title;
+        private final double min;
+        private final double max;
+        private final int decimals;
+        private final DoubleConsumer onChange;
+
+        DoubleSlider(int x, int y, int width, int height, String title, double min, double max,
+                     double value, int decimals, DoubleConsumer onChange) {
+            super(x, y, width, height, Component.empty(), toSlider(value, min, max));
+            this.title = title;
+            this.min = min;
+            this.max = max;
+            this.decimals = decimals;
+            this.onChange = onChange;
+            this.updateMessage();
+        }
+
+        @Override
+        protected void updateMessage() {
+            String format = "%1$." + this.decimals + "f";
+            this.setMessage(Component.literal(this.title + ": " + String.format(Locale.ROOT, format, this.toValue())));
+        }
+
+        @Override
+        protected void applyValue() {
+            this.onChange.accept(this.toValue());
+        }
+
+        private double toValue() {
+            return Mth.clamp(this.min + (this.max - this.min) * this.value, this.min, this.max);
+        }
+
+        private static double toSlider(double value, double min, double max) {
+            if (max <= min) {
+                return 0.0;
+            }
+            return Mth.clamp((value - min) / (max - min), 0.0, 1.0);
+        }
+    }
 }

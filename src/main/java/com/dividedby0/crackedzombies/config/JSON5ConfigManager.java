@@ -47,10 +47,16 @@ public class JSON5ConfigManager {
                 "Maximum number of Cracked Zombies per spawn event");
         addInt("zombieSpawnProb", 15, 1, 100,
                 "Relative probability of zombie spawning (higher = more frequent)");
+        addBool("spawnInCreative", false,
+            "Allow Cracked Zombies to spawn around players in Creative mode");
         addBool("zombieSpawns", false,
                 "Allow vanilla zombie spawns alongside Cracked Zombies (false = only Cracked Zombies spawn)");
         addBool("daySpawning", true,
                 "Allow Cracked Zombies to spawn during daytime");
+        addInt("minSpawnDistance", 12, 4, 64,
+            "Minimum distance from player for Cracked Zombie cluster spawns (in blocks)");
+        addInt("maxSpawnDistance", 24, 8, 128,
+            "Maximum distance from player for Cracked Zombie cluster spawns (in blocks)");
 
         // --- Behavior settings ---
         addBool("doorBusting", false,
@@ -70,13 +76,6 @@ public class JSON5ConfigManager {
         addDouble("followRange", 64.0, 16.0, 256.0,
                 "Maximum distance in blocks Cracked Zombies will chase a player");
 
-        // --- Other mob spawn toggles (matching original config) ---
-        addBool("spawnCreepers", true, "Allow Creeper spawns");
-        addBool("spawnEnderman", true, "Allow Enderman spawns");
-        addBool("spawnSkeletons", true, "Allow Skeleton spawns");
-        addBool("spawnSlime", true, "Allow Slime spawns");
-        addBool("spawnSpiders", true, "Allow Spider spawns");
-        addBool("spawnWitches", true, "Allow Witch spawns");
     }
 
     private void addInt(String key, int value, int min, int max, String description) {

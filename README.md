@@ -1,17 +1,19 @@
 # Cracked Zombies Mod
 
-A Minecraft Forge mod for Minecraft 1.20.1 that replaces vanilla zombie behaviour with fast, aggressive, day-and-night spawning zombie clusters. Spiritual successor to the original CrackedZombie mod by crackedEgg (Minecraft 1.7.10).
+A Minecraft Forge mod for Minecraft 1.20.1 that upgrades zombie pressure with fast, aggressive, configurable Cracked Zombies.
+
+This codebase now uses an event-driven runtime architecture (no custom zombie entity class).
 
 ## Features
 
-- **Day & night spawning** — Cracked Zombies ignore sunlight and spawn around the clock
-- **Large cluster spawns** — configurable min/max group sizes per spawn event
+- **Vanilla zombie conversion** — control whether vanilla zombies are allowed to remain vanilla or are converted to Cracked Zombies
+- **Cluster spawner** — configurable min/max group size, spawn chance, and spawn distance around players
+- **Day spawning option** — keep pressure during daytime by clearing fire on Cracked Zombies
 - **High movement speed** — default 0.35 (vanilla zombie is 0.23)
 - **Extended aggro & follow range** — detect and chase players from much further away
 - **Poison on hit** — configurable duration and amplifier
 - **Door busting** — optionally allow zombies to break down doors
-- **Mob spawn toggles** — individually disable Creepers, Endermen, Skeletons, Slimes, Spiders, Witches
-- **Suppress vanilla zombies** — optionally replace all vanilla zombie spawns with Cracked Zombies
+- **Creative mode control** — optional spawning while players are in creative mode
 - **In-game config screen** — accessible from the Mods menu
 
 ## Default Config
@@ -20,8 +22,11 @@ A Minecraft Forge mod for Minecraft 1.20.1 that replaces vanilla zombie behaviou
 |-----------|---------|-------------|
 | `minSpawn` | 2 | Min zombies per spawn event |
 | `maxSpawn` | 10 | Max zombies per spawn event |
-| `zombieSpawnProb` | 15 | Spawn weight (higher = more frequent) |
-| `zombieSpawns` | false | Allow vanilla zombie co-spawns |
+| `zombieSpawnProb` | 15 | Spawn chance per spawn tick (1-100) |
+| `minSpawnDistance` | 12 | Min distance from player for cluster anchor |
+| `maxSpawnDistance` | 24 | Max distance from player for cluster anchor |
+| `spawnInCreative` | false | Allow cluster spawns for creative players |
+| `zombieSpawns` | false | Allow vanilla zombies to remain vanilla (false converts to Cracked Zombies) |
 | `daySpawning` | true | Spawn during daytime |
 | `doorBusting` | false | Break down doors |
 | `sickness` | true | Apply poison on hit |
@@ -30,14 +35,23 @@ A Minecraft Forge mod for Minecraft 1.20.1 that replaces vanilla zombie behaviou
 | `moveSpeed` | 0.35 | Movement speed |
 | `aggroRange` | 40.0 | Detection range in blocks |
 | `followRange` | 64.0 | Chase range in blocks |
-| `spawnCreepers` | true | Allow Creeper spawns |
-| `spawnEnderman` | true | Allow Enderman spawns |
-| `spawnSkeletons` | true | Allow Skeleton spawns |
-| `spawnSlime` | true | Allow Slime spawns |
-| `spawnSpiders` | true | Allow Spider spawns |
-| `spawnWitches` | true | Allow Witch spawns |
 
 Config is stored at `<gameDir>/config/crackedzombies.json5`.
+
+## Runtime Architecture
+
+The mod flow is centered on Forge events:
+
+- `CrackedZombiesMod` initializes config and registers the config screen + runtime handler
+- `CrackedZombieHandler#onEntityJoinLevel` converts newly spawned zombies based on `zombieSpawns` and `zombieSpawnProb`
+- `CrackedZombieHandler#onLevelTick` runs a periodic cluster spawner in the Overworld
+- `CrackedZombieHandler#onLivingTick` applies chase/aggro behavior and daytime fire suppression for Cracked Zombies
+- `CrackedZombieHandler#onLivingHurt` applies poison effects when Cracked Zombies hit players
+
+Notes:
+
+- Cluster spawns are custom `addFreshEntity` spawns and are not tied to vanilla natural-spawn mob caps
+- Cluster placement uses surface + collision checks to avoid invalid placements
 
 ## Prerequisites
 
@@ -94,16 +108,12 @@ Output JAR: `build/libs/crackedzombies-1.0.0.jar` — copy to your mods folder.
 
 ```
 src/main/java/com/dividedby0/crackedzombies/
-├── CrackedZombiesMod.java       # Mod entry point, entity/attribute registration
-├── SpawnHandler.java            # BiomeLoadingEvent: inject spawns, suppress vanilla mobs
-├── ClientSetup.java             # Register entity renderer (client-only)
+├── CrackedZombiesMod.java       # Mod entry point and registration
+├── CrackedZombieHandler.java    # Runtime Forge event handlers (conversion, spawning, AI, poison)
 ├── SimpleConfigScreen.java      # In-game config UI
 ├── config/
 │   ├── ConfigManager.java       # Config singleton
 │   └── JSON5ConfigManager.java  # JSON5 file reader/writer
-└── entity/
-    ├── CrackedZombieEntity.java  # Entity class: AI goals, attributes, poison logic
-    └── ModEntities.java          # Entity type registration
 ```
 
 ## Troubleshooting
@@ -111,4 +121,5 @@ src/main/java/com/dividedby0/crackedzombies/
 - Java version errors: ensure OpenJDK 17 is on PATH
 - Gradle issues: try `./gradlew --no-daemon clean build`
 - Ensure Forge 47.4.10 for Minecraft 1.20.1
-- If zombies aren't spawning at night, check `daySpawning` is `true` in config (they always spawn when true)
+- If daytime clusters are not appearing, check `daySpawning` is `true`
+- If no clusters are spawning, verify `zombieSpawnProb` and `spawnInCreative` settings
