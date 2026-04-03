@@ -2,6 +2,8 @@
 
 A Minecraft Forge mod for Minecraft 1.20.1 that upgrades zombie pressure with fast, aggressive, configurable Cracked Zombies.
 
+Current release channel: **Beta** (`1.0.0-beta.1`).
+
 This codebase now uses an event-driven runtime architecture (no custom zombie entity class).
 
 ## Features
@@ -15,6 +17,12 @@ This codebase now uses an event-driven runtime architecture (no custom zombie en
 - **Door busting** — optionally allow zombies to break down doors
 - **Creative mode control** — optional spawning while players are in creative mode
 - **In-game config screen** — accessible from the Mods menu
+
+## Compatibility
+
+- Minecraft: `1.20.1`
+- Forge: `47.4.10+`
+- Java: `17`
 
 ## Default Config
 
@@ -83,7 +91,7 @@ sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVir
 ./gradlew build
 ```
 
-Output JAR: `build/libs/crackedzombies-1.0.0.jar` — copy to your mods folder.
+Output JAR: `build/libs/crackedzombies-1.0.0-beta.1.jar` — copy to your mods folder.
 
 ## Running
 
@@ -123,3 +131,28 @@ src/main/java/com/dividedby0/crackedzombies/
 - Ensure Forge 47.4.10 for Minecraft 1.20.1
 - If daytime clusters are not appearing, check `daySpawning` is `true`
 - If no clusters are spawning, verify `zombieSpawnProb` and `spawnInCreative` settings
+
+## Project Links
+
+- Repository: https://github.com/0dividedby0/CrackedZombie
+- Issues: https://github.com/0dividedby0/CrackedZombie/issues
+
+## Release Notes (1.0.0-beta.1)
+
+- Initial beta release on Forge 1.20.1.
+- Added runtime zombie conversion system.
+- Added configurable cluster spawning and distance controls.
+- Added daytime spawning toggle.
+- Added poison-on-hit behavior.
+- Added in-game configuration screen.
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for full text.
+
+## Credits
+
+Inspired by **CrackedZombie** by RCKR.
+Original mod: https://www.curseforge.com/minecraft/mc-mods/crackedzombie
+
+This mod is an independent, ground-up rewrite for Minecraft Forge 1.20.1 and shares no code or assets with the original.
