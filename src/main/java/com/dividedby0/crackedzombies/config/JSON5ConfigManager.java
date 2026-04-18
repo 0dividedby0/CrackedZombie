@@ -57,6 +57,12 @@ public class JSON5ConfigManager {
             "Minimum distance from player for Cracked Zombie cluster spawns (in blocks)");
         addInt("maxSpawnDistance", 24, 8, 128,
             "Maximum distance from player for Cracked Zombie cluster spawns (in blocks)");
+        addInt("spawnIntervalTicks", 120, 20, 1200,
+                "How often the mod checks for Cracked Zombie spawns around each player (in ticks)");
+        addInt("maxNearbyCrackedZombies", 24, 0, 128,
+                "Maximum nearby Cracked Zombies allowed around a player before new spawns are skipped");
+        addInt("nearbyZombieCapRange", 48, 8, 128,
+                "Range in blocks used when counting nearby Cracked Zombies for the spawn cap");
 
         // --- Behavior settings ---
         addBool("doorBusting", false,
@@ -73,8 +79,14 @@ public class JSON5ConfigManager {
                 "Movement speed of Cracked Zombies (vanilla zombie = 0.23)");
         addDouble("aggroRange", 40.0, 8.0, 128.0,
                 "Distance in blocks at which Cracked Zombies detect players");
+        addDouble("hiddenAggroRange", 10.0, 2.0, 128.0,
+                "Detection distance in blocks when a Cracked Zombie does not have line of sight to the player");
         addDouble("followRange", 64.0, 16.0, 256.0,
                 "Maximum distance in blocks Cracked Zombies will chase a player");
+        addInt("farNavigationRefreshDistance", 32, 8, 128,
+                "Distance from a zombie's target where path refreshes begin slowing down");
+        addInt("farNavigationRefreshInterval", 40, 20, 200,
+                "Path refresh interval in ticks for zombies chasing targets beyond the far distance");
 
     }
 
